@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>दिव्या - Handcrafted Clay Art</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom CSS Variables */
+        :root {
+            --terracotta: #C1694F;
+            --clay-brown: #8B5A3C;
+            --beige: #E8DCC4;
+            --cream: #F5EFE6;
+            --dark-brown: #4A3728;
+            --light-sand: #F9F5F0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-sand);
+            color: var(--dark-brown);
+            overflow-x: hidden;
+        }
+
+        /* Loading Animation */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--cream);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-logo {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--terracotta);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--terracotta);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.1s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--terracotta);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.05s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Background Texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(193, 105, 79, 0.03) 2px, rgba(193, 105, 79, 0.03) 4px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Logo Styling */
+        .logo {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--terracotta);
+            letter-spacing: 3px;
+            text-shadow: 3px 3px 8px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(249, 245, 240, 0.9));
+            padding: 12px 24px;
+            border-radius: 50px;
+            border: 2px solid rgba(193, 105, 79, 0.3);
+            box-shadow: 0 4px 20px rgba(193, 105, 79, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .logo:hover::before {
+            left: 100%;
+        }
+
+        .logo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(193, 105, 79, 0.3);
+            border-color: rgba(193, 105, 79, 0.5);
+        }
+
+        /* Navbar */
+        nav {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            background: linear-gradient(135deg, rgba(249, 245, 240, 0.95), rgba(232, 220, 196, 0.95));
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(193, 105, 79, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 1.2rem 0;
+            box-shadow: 0 4px 30px rgba(193, 105, 79, 0.15);
+        }
+
+        nav.scrolled {
+            background: linear-gradient(135deg, rgba(249, 245, 240, 1), rgba(232, 220, 196, 1));
+            box-shadow: 0 8px 40px rgba(193, 105, 79, 0.25);
+            border-bottom: 2px solid rgba(193, 105, 79, 0.4);
+        }
+
+        /* Hero Section */
+        .hero-section {
+            height: 100vh;
+            background: linear-gradient(rgba(74, 55, 40, 0.3), rgba(139, 90, 60, 0.2)), 
+                        url('images/download.png') center/contain;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            animation: fadeInUp 1s ease-out;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Parallax Effect */
+        .parallax {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        /* Glassmorphism Cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 40px rgba(193, 105, 79, 0.2);
+        }
+
+        /* Gallery Hover Effect */
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border-radius: 12px;
+        }
+
+        .gallery-item img {
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.15);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(193, 105, 79, 0.9), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            animation: zoomIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.8); }
+            to { transform: scale(1); }
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--terracotta), var(--clay-brown));
+            color: white;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(193, 105, 79, 0.3);
+        }
+
+        .nav-link {
+            color: var(--dark-brown);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--terracotta), var(--clay-brown));
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::before {
+            width: 80%;
+        }
+
+        .nav-link:hover {
+            color: var(--terracotta);
+            background: rgba(193, 105, 79, 0.1);
+            transform: translateY(-2px);
+            text-shadow: 1px 1px 4px rgba(193, 105, 79, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(193, 105, 79, 0.4);
+        }
+
+        /* Process Steps */
+        .process-step {
+            position: relative;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            transition: all 0.4s ease;
+        }
+
+        .process-step:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .process-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--terracotta), var(--clay-brown));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 8px 20px rgba(193, 105, 79, 0.3);
+        }
+
+        /* Testimonial Slider */
+        .testimonial-slider {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .testimonial-slide {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .testimonial-slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Form Styles */
+        .form-input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid var(--beige);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--terracotta);
+            background: white;
+            box-shadow: 0 4px 15px rgba(193, 105, 79, 0.2);
+        }
+
+        /* Scroll Reveal Animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Social Icons */
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--terracotta), var(--clay-brown));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-5px) rotate(360deg);
+            box-shadow: 0 8px 20px rgba(193, 105, 79, 0.4);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .loader-logo {
+                font-size: 3rem;
+            }
+
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .custom-cursor, .cursor-dot {
+                display: none;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Section Spacing */
+        section {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div id="loader">
+        <div class="loader-logo">दिव्या</div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed w-full top-0 bg-transparent transition-all duration-300 py-4 px-6 md:px-12">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="logo">दिव्या</div>
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="nav-link text-lg font-medium hover:text-[var(--terracotta)] transition-colors duration-300">Home</a>
+                <a href="#about" class="nav-link text-lg font-medium hover:text-[var(--terracotta)] transition-colors duration-300">About</a>
+                <a href="#gallery" class="nav-link text-lg font-medium hover:text-[var(--terracotta)] transition-colors duration-300">Gallery</a>
+                <a href="#contact" class="nav-link text-lg font-medium hover:text-[var(--terracotta)] transition-colors duration-300">Contact</a>
+            </div>
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-2xl">
+                <span>☰</span>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 space-y-4 text-center">
+            <a href="#home" class="block text-lg font-medium hover:text-[var(--terracotta)] transition-colors duration-300">Home</a>
+            <a href="#about" class="block text-lg font-medium hover:text-[var(--terracotta)] transition-colors duration-300">About</a>
+            <a href="#gallery" class="block text-lg font-medium hover:text-[var(--terracotta)] transition-colors duration-300">Gallery</a>
+            <a href="#contact" class="block text-lg font-medium hover:text-[var(--terracotta)] transition-colors duration-300">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section parallax flex items-center justify-center">
+        <div class="hero-content text-center text-white px-6">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6" style="font-family: 'Playfair Display', serif;">Handcrafted Clay Art</h1>
+            <p class="text-xl md:text-2xl mb-8 font-light">Turning imagination into timeless texture</p>
+            <button onclick="document.getElementById('gallery').scrollIntoView({behavior: 'smooth'})" class="btn-primary">
+                Explore Gallery
+            </button>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 px-6 md:px-12 bg-[var(--light-sand)]">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6" style="font-family: 'Playfair Display', serif; color: var(--terracotta);">About Our Art</h2>
+                    <p class="text-lg leading-relaxed mb-4">
+                        Welcome to <strong>दिव्या</strong>, where ancient craftsmanship meets contemporary artistry. Each piece is a testament to the timeless beauty of handcrafted clay relief art.
+                    </p>
+                    <p class="text-lg leading-relaxed mb-4">
+                        Our unique technique involves sculpting intricate designs on cardboard using natural clay, creating three-dimensional masterpieces that capture light and shadow in mesmerizing ways.
+                    </p>
+                    <p class="text-lg leading-relaxed">
+                        Every artwork is meticulously handcrafted, ensuring that no two pieces are exactly alike. This is art that tells a story, evokes emotion, and transforms spaces.
+                    </p>
+                </div>
+                <div class="reveal">
+                    <img src="images/img2.jpeg" 
+                         alt="Clay Art Process" 
+                         class="rounded-2xl shadow-2xl w-full h-auto object-cover">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-20 px-6 md:px-12 bg-[var(--cream)]">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 reveal" style="font-family: 'Playfair Display', serif; color: var(--terracotta);">Our Gallery</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Gallery Item 1 -->
+                <div class="gallery-item reveal" onclick="openLightbox('images/img3.jpeg')">
+                    <img src="images/img3.jpeg" alt="Clay Art 1" class="w-full h-80 object-cover">
+                    <div class="gallery-overlay">
+                        <h3 class="text-white text-xl font-semibold">Sacred Mandala</h3>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 2 -->
+                <div class="gallery-item reveal" onclick="openLightbox('images/img2.jpeg')">
+                    <img src="images/img2.jpeg" alt="Clay Art 2" class="w-full h-80 object-cover">
+                    <div class="gallery-overlay">
+                        <h3 class="text-white text-xl font-semibold">Peacock Elegance</h3>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 3 -->
+                <div class="gallery-item reveal" onclick="openLightbox('images/img1.jpeg')">
+                    <img src="images/img1.jpeg" alt="Clay Art 3" class="w-full h-80 object-cover">
+                    <div class="gallery-overlay">
+                        <h3 class="text-white text-xl font-semibold">Floral Symphony</h3>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 4 -->
+                <div class="gallery-item reveal" onclick="openLightbox('images/img4.jpeg')">
+                    <img src="images/img4.jpeg" alt="Clay Art 4" class="w-full h-80 object-cover">
+                    <div class="gallery-overlay">
+                        <h3 class="text-white text-xl font-semibold">Geometric Harmony</h3>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 5 -->
+                <div class="gallery-item reveal" onclick="openLightbox('images/WhatsApp Image 2026-04-03 at 11.34.10 PM.jpeg')">
+                    <img src="images/WhatsApp Image 2026-04-03 at 11.34.10 PM.jpeg" alt="Clay Art 5" class="w-full h-80 object-cover">
+                    <div class="gallery-overlay">
+                        <h3 class="text-white text-xl font-semibold">Diamond Collection</h3>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 6 -->
+                <div class="gallery-item reveal" onclick="openLightbox('images/WhatsApp Image 2026-04-03 at 11.34.12 PM.jpeg')">
+                    <img src="images/WhatsApp Image 2026-04-03 at 11.34.12 PM.jpeg" alt="Clay Art 6" class="w-full h-80 object-cover">
+                    <div class="gallery-overlay">
+                        <h3 class="text-white text-xl font-semibold">Cultural Heritage</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="Lightbox Image">
+    </div>
+
+    <!-- Process Section -->
+    <section id="process" class="py-20 px-6 md:px-12 bg-[var(--light-sand)]">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 reveal" style="font-family: 'Playfair Display', serif; color: var(--terracotta);">Our Creative Process</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Step 1 -->
+                <div class="process-step reveal">
+                    <div class="process-icon">🎨</div>
+                    <h3 class="text-2xl font-semibold text-center mb-3" style="color: var(--clay-brown);">Design</h3>
+                    <p class="text-center text-gray-700">Conceptualize unique patterns and artistic visions</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="process-step reveal">
+                    <div class="process-icon">✋</div>
+                    <h3 class="text-2xl font-semibold text-center mb-3" style="color: var(--clay-brown);">Sculpt</h3>
+                    <p class="text-center text-gray-700">Hand-sculpt intricate details with natural clay</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="process-step reveal">
+                    <div class="process-icon">☀️</div>
+                    <h3 class="text-2xl font-semibold text-center mb-3" style="color: var(--clay-brown);">Dry</h3>
+                    <p class="text-center text-gray-700">Allow the artwork to naturally cure and harden</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="process-step reveal">
+                    <div class="process-icon">✨</div>
+                    <h3 class="text-2xl font-semibold text-center mb-3" style="color: var(--clay-brown);">Finish</h3>
+                    <p class="text-center text-gray-700">Apply final touches and protective coating</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 px-6 md:px-12 bg-[var(--cream)]">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 reveal" style="font-family: 'Playfair Display', serif; color: var(--terracotta);">What Our Clients Say</h2>
+            
+            <div class="testimonial-slider glass-card rounded-2xl p-8 md:p-12">
+                <!-- Testimonial 1 -->
+                <div class="testimonial-slide active text-center">
+                    <p class="text-xl italic mb-6 text-gray-700">"The clay relief artwork from दिव्या transformed my living room into an art gallery. The craftsmanship is absolutely stunning!"</p>
+                    <h4 class="text-lg font-semibold" style="color: var(--terracotta);">- Priya Sharma</h4>
+                    <p class="text-gray-600">Interior Designer, Mumbai</p>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="testimonial-slide text-center">
+                    <p class="text-xl italic mb-6 text-gray-700">"Each piece is a masterpiece. The attention to detail and the unique texture make these artworks truly one-of-a-kind."</p>
+                    <h4 class="text-lg font-semibold" style="color: var(--terracotta);">- Rajesh Kumar</h4>
+                    <p class="text-gray-600">Art Collector, Delhi</p>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="testimonial-slide text-center">
+                    <p class="text-xl italic mb-6 text-gray-700">"I gifted a custom clay relief to my parents, and they were overwhelmed with joy. The artistry is beyond words!"</p>
+                    <h4 class="text-lg font-semibold" style="color: var(--terracotta);">- Anita Desai</h4>
+                    <p class="text-gray-600">Entrepreneur, Bangalore</p>
+                </div>
+
+                <!-- Slider Controls -->
+                <div class="flex justify-center mt-8 space-x-4">
+                    <button onclick="changeSlide(-1)" class="w-12 h-12 rounded-full bg-[var(--terracotta)] text-white hover:bg-[var(--clay-brown)] transition-colors duration-300">‹</button>
+                    <button onclick="changeSlide(1)" class="w-12 h-12 rounded-full bg-[var(--terracotta)] text-white hover:bg-[var(--clay-brown)] transition-colors duration-300">›</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 px-6 md:px-12 bg-[var(--light-sand)]">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12 reveal" style="font-family: 'Playfair Display', serif; color: var(--terracotta);">Get In Touch</h2>
+            
+            <form class="glass-card rounded-2xl p-8 md:p-12 reveal" onsubmit="handleSubmit(event)">
+                <div class="mb-6">
+                    <label class="block text-lg font-medium mb-2" style="color: var(--clay-brown);">Name</label>
+                    <input type="text" name="name" required class="form-input" placeholder="Your Name">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-lg font-medium mb-2" style="color: var(--clay-brown);">Email</label>
+                    <input type="email" name="email" required class="form-input" placeholder="your.email@example.com">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-lg font-medium mb-2" style="color: var(--clay-brown);">Message</label>
+                    <textarea name="message" required rows="5" class="form-input" placeholder="Tell us about your project or inquiry..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary w-full">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[var(--dark-brown)] text-white py-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="logo text-white text-3xl mb-2">दिव्या</div>
+                    <p class="text-gray-300">Handcrafted Clay Relief Art</p>
+                </div>
+
+                <div class="flex space-x-4 mb-6 md:mb-0">
+                    <a href="#" class="social-icon" aria-label="Facebook">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Instagram">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Pinterest">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.372-12 12 0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.631-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146 1.124.347 2.317.535 3.554.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/></svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-600 mt-8 pt-8 text-center">
+                <p class="text-gray-400">&copy; 2026 दिव्या. All rights reserved. Handcrafted with ❤️</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Loading Animation
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Custom Cursor
+        const cursor = document.querySelector('.custom-cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // Sticky Navbar
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Lightbox Functions
+        function openLightbox(imageSrc) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            lightboxImg.src = imageSrc;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close lightbox on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+
+        // Testimonial Slider
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.testimonial-slide');
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active');
+                if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide >= slides.length) {
+                currentSlide = 0;
+            } else if (currentSlide < 0) {
+                currentSlide = slides.length - 1;
+            }
+            showSlide(currentSlide);
+        }
+
+        // Auto-advance testimonials
+        setInterval(() => {
+            changeSlide(1);
+        }, 5000);
+
+        // Scroll Reveal Animation
+        function reveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            reveals.forEach(element => {
+                const windowHeight = window.innerHeight;
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    element.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', reveal);
+        reveal();
+
+        // Form Submission
+        function handleSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            alert(`Thank you, ${formData.get('name')}! Your message has been received. We'll get back to you soon.`);
+            form.reset();
+        }
+
+        // Parallax Effect
+        window.addEventListener('scroll', () => {
+            const parallax = document.querySelector('.parallax');
+            let scrollPosition = window.pageYOffset;
+            parallax.style.backgroundPositionY = scrollPosition * 0.5 + 'px';
+        });
+
+        // Smooth Scroll for Navigation Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
